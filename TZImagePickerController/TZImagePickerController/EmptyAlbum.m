@@ -15,7 +15,7 @@
         self = [[[NSBundle mainBundle] loadNibNamed:@"EmptyAlbum" owner:nil options:nil] firstObject];
         self.frame = frame;
         self.emptyBtn.layer.cornerRadius = 8;
-        self.emptySubTitle.textColor = [UIColor colorWithRed:60 green:60 blue:67 alpha:1];
+
     }
 
           return self;
