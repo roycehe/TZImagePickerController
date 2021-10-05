@@ -18,7 +18,8 @@
 #import "TZLocationManager.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "TZImageRequestOperation.h"
-
+#import "LimitedTip.h"
+#import <PhotosUI/PHPhotoLibrary+PhotosUISupport.h>
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate, PHPhotoLibraryChangeObserver> {
     NSMutableArray *_models;
     
@@ -147,10 +148,41 @@ static CGFloat itemMargin = 5;
         [self configBottomToolBar];
         
         [self scrollCollectionViewToBottom];
+        //检查权限
+        [self checkAuth];
     });
 }
+-(void)checkAuth{
+    if (@available(iOS 14, *)) {
+        PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
+        if (status == PHAuthorizationStatusLimited) {
+            LimitedTip *emp = [[LimitedTip alloc]initWithFrame:CGRectMake(-5, -91, [UIScreen mainScreen].bounds.size.width, 86)];
+            [emp.settingBtn addTarget:self action:@selector(onOpenSettings) forControlEvents:(UIControlEventTouchUpInside)];
+            [emp.pickBtn addTarget:self action:@selector(onOpenPicker) forControlEvents:(UIControlEventTouchUpInside)];
+            _collectionView.contentInset = UIEdgeInsetsMake(itemMargin + 86, itemMargin, itemMargin, itemMargin);
+            [self.collectionView addSubview:emp];
+            
+        }
 
-- (void)viewWillDisappear:(BOOL)animated {
+    }
+}
+-(void)onOpenSettings{
+    NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    if ([[UIApplication sharedApplication] canOpenURL:url]){
+        if (@available(iOS 10.0, *)) {
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        } else {
+            // Fallback on earlier versions
+        }
+        }
+}
+
+-(void)onOpenPicker{
+    if (@available(iOS 14, *)) {
+        [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+    }
+          
+}- (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     tzImagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;

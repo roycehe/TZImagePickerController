@@ -14,6 +14,7 @@
 #import "TZAssetCell.h"
 #import "UIView+TZLayout.h"
 #import "TZImageManager.h"
+#import "EmptyAlbum.h"
 #import "TZVideoCropController.h"
 
 @interface TZImagePickerController () {
@@ -197,28 +198,28 @@
         [self configDefaultSetting];
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
-            _tipLabel = [[UILabel alloc] init];
-            _tipLabel.frame = CGRectMake(8, 120, self.view.tz_width - 16, 60);
-            _tipLabel.textAlignment = NSTextAlignmentCenter;
-            _tipLabel.numberOfLines = 0;
-            _tipLabel.font = [UIFont systemFontOfSize:16];
-            _tipLabel.textColor = [UIColor blackColor];
-            _tipLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-
-            NSString *appName = [TZCommonTools tz_getAppName];
-            NSString *tipText = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Allow %@ to access your album in \"Settings -> Privacy -> Photos\""],appName];
-            _tipLabel.text = tipText;
-            [self.view addSubview:_tipLabel];
-            
-            _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
-            [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
-            _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
-            _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
-            [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
-            _settingBtn.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-
-            [self.view addSubview:_settingBtn];
-            
+//            _tipLabel = [[UILabel alloc] init];
+//            _tipLabel.frame = CGRectMake(8, 120, self.view.tz_width - 16, 60);
+//            _tipLabel.textAlignment = NSTextAlignmentCenter;
+//            _tipLabel.numberOfLines = 0;
+//            _tipLabel.font = [UIFont systemFontOfSize:16];
+//            _tipLabel.textColor = [UIColor blackColor];
+//            _tipLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+//
+//            NSString *appName = [TZCommonTools tz_getAppName];
+//            NSString *tipText = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Allow %@ to access your album in \"Settings -> Privacy -> Photos\""],appName];
+//            _tipLabel.text = tipText;
+//            [self.view addSubview:_tipLabel];
+//
+//            _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+//            [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
+//            _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
+//            _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
+//            [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
+//            _settingBtn.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+//
+//            [self.view addSubview:_settingBtn];
+            [self showEmptyPhotoView];
             if ([PHPhotoLibrary authorizationStatus] == 0) {
                 _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
             }
@@ -228,7 +229,19 @@
     }
     return self;
 }
-
+-(void)showEmptyPhotoView{
+    EmptyAlbum *emp = [[EmptyAlbum alloc]initWithFrame:self.view.bounds];
+    NSString *name = [[NSBundle mainBundle].infoDictionary objectForKey:@"CFBundleDisplayName"];
+    emp.emptyTitle.text= [NSString stringWithFormat:@"未授予%@访问照片权限", name];
+    [emp.emptyBtn addTarget:self action:@selector(onOpenSettings) forControlEvents:(UIControlEventTouchUpInside)];
+    [self.view addSubview:emp];
+}
+-(void)onOpenSettings{
+    NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    if ([[UIApplication sharedApplication] canOpenURL:url]){
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        }
+}
 /// This init method just for previewing photos / 用这个初始化方法以预览图片
 - (instancetype)initWithSelectedAssets:(NSMutableArray *)selectedAssets selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index{
     TZPhotoPreviewController *previewVc = [[TZPhotoPreviewController alloc] init];
