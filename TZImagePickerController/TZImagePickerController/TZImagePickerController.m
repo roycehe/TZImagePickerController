@@ -233,6 +233,8 @@
     EmptyAlbum *emp = [[EmptyAlbum alloc]initWithFrame:CGRectMake(0, 80, self.view.bounds.size.width, self.view.bounds.size.height - 120)];
     NSString *name = [[NSBundle mainBundle].infoDictionary objectForKey:@"CFBundleDisplayName"];
     emp.emptyTitle.text= [NSString stringWithFormat:@"未授予%@访问照片权限", name];
+    emp.emptySubTitle.text= [NSString stringWithFormat:@"前往设置，允许%@访问所有照片", name];
+
     [emp.emptyBtn addTarget:self action:@selector(onOpenSettings) forControlEvents:(UIControlEventTouchUpInside)];
     [self.view addSubview:emp];
 }
