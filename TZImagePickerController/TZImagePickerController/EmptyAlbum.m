@@ -12,7 +12,8 @@
 
 -(instancetype)initWithFrame:(CGRect)frame{
     if (self = [super initWithFrame:frame]) {
-        self = [[[NSBundle mainBundle] loadNibNamed:@"EmptyAlbum" owner:nil options:nil] firstObject];
+        NSBundle *xibBundle = [NSBundle bundleForClass:[self class]];
+        self = [[xibBundle loadNibNamed:@"EmptyAlbum" owner:nil options:nil] firstObject];
         self.frame = frame;
         self.emptyBtn.layer.cornerRadius = 8;
 
